@@ -31,7 +31,7 @@ const FacilitiesSection = () => {
         ))}
       </div>
       {errors.facilities && (
-        <span className="text-red-500 text-sm">
+        <span className="text-red-500 text-sm font-bold">
           {errors.facilities.message}
         </span>
       )}
