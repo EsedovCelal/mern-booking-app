@@ -13,7 +13,7 @@ const MyHotels = () => {
   if (!hotelData) {
     return <span>No Hotel found</span>;
   }
-
+  console.log(hotelData);
   return (
     <div className="space-y-5">
       <span className="flex justify-between">
