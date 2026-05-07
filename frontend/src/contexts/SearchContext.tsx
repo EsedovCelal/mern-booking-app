@@ -13,7 +13,6 @@ type SearchContext = {
     checkOut: Date,
     adultCount: number,
     childCount: number,
-    hotelId: string,
   ) => void;
 };
 const SearchContext = React.createContext<SearchContext | undefined>(undefined);
@@ -38,7 +37,7 @@ export const SearchContextProvider = ({
     checkOut: Date,
     adultCount: number,
     childCount: number,
-    hotelId: string,
+    hotelId?: string,
   ) => {
     setDestination(destination);
     setCheckIn(checkIn);
