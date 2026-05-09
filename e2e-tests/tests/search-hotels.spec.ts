@@ -63,6 +63,10 @@ test("should book hotel", async ({ page }) => {
   await stripeFrame.locator('[placeholder="MM / YY"]').fill("04/30");
   await stripeFrame.locator('[placeholder="CVC"]').fill("242");
   await stripeFrame.locator('[placeholder="ZIP"]').fill("24222");
+
   await page.getByRole("button", { name: "Confirm Booking" }).click();
   await expect(page.getByText("Booking saved")).toBeVisible();
+
+  await page.getByRole("link", { name: "My Bookings" }).click();
+  await expect(page.getByText("Dublin Gateways")).toBeVisible();
 });
