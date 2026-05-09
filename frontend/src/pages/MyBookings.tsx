@@ -1,6 +1,5 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as apiClient from "../api-client";
-import Booking from "./Booking";
 
 const MyBookings = () => {
   const { data: hotels } = useQuery({
@@ -33,7 +32,7 @@ const MyBookings = () => {
               </div>
             </div>
             {hotel.bookings.map((booking, index) => (
-              <div>
+              <div key={index}>
                 <div>
                   <span className="font-bold mr-2">Dates:</span>
                   <span>
