@@ -13,10 +13,9 @@ const MyHotels = () => {
   if (!hotelData) {
     return <span>No Hotel found</span>;
   }
-  console.log(hotelData);
   return (
-    <div className="space-y-5">
-      <span className="flex justify-between">
+    <div className="space-y-5 px-4 md:px-0">
+      <span className="flex justify-between ">
         <h1 className="text-3xl font-bold">My Hotels</h1>
         <Link
           to="/add-hotel"

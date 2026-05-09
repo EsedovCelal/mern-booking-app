@@ -26,6 +26,14 @@ const SearchBar = () => {
     );
     navigate("/search");
   };
+  const handleReset = () => {
+    setDestination("");
+    setCheckIn(new Date());
+    setCheckOut(new Date());
+    setAdultCount(1);
+    setChildCount(0);
+    search.saveSearchValues("", new Date(), new Date(), 1, 0);
+  };
 
   const minDate = new Date();
   const maxDate = new Date();
@@ -34,6 +42,7 @@ const SearchBar = () => {
   return (
     <form
       onSubmit={handleSubmit}
+      onReset={handleReset}
       className="-mt-8 p-3 bg-orange-400 rounded shadow-md grid grid-cols-2 lg:grid-cols-5 2xl-grid-cols-5 items-center gap-2"
     >
       <div className="flex flex-row items-center flex-1 bg-white p-2">
@@ -79,7 +88,7 @@ const SearchBar = () => {
           minDate={minDate}
           maxDate={maxDate}
           placeholderText="Check-in Date"
-          className="min-w-full bg-white p-2 focus:outline-none"
+          className="w-full bg-white p-2 focus:outline-none"
           wrapperClassName="min-w-full"
         />
       </div>
@@ -93,14 +102,21 @@ const SearchBar = () => {
           minDate={minDate}
           maxDate={maxDate}
           placeholderText="Check-out Date"
-          className="min-w-full bg-white p-2 focus:outline-none"
+          className="w-full bg-white p-2 focus:outline-none"
+          wrapperClassName="min-w-full"
         />
       </div>
       <div className="flex gap-1">
-        <button className="w-2/3 bg-blue-600 text-white h-full p-2 font-bold text-xl hover:bg-blue-500">
+        <button
+          type="submit"
+          className="md:w-2/3 bg-blue-600 text-white h-full p-2 font-bold text-xl hover:bg-blue-500"
+        >
           Search
         </button>
-        <button className="w-1/3 bg-red-600 text-white h-full p-2 font-bold text-xl hover:bg-red-500">
+        <button
+          type="reset"
+          className="md:w-1/3 bg-red-600 text-white h-full p-2 font-bold text-xl hover:bg-red-500"
+        >
           Clear
         </button>
       </div>

@@ -8,9 +8,9 @@ const FacilitiesSection = () => {
     formState: { errors },
   } = useFormContext<HotelFormData>();
   return (
-    <div>
+    <div className="px-4 md:px-0">
       <h2 className="text-2xl font-bold mb-3">Facilities</h2>
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {hotelFacilities.map((facility) => (
           <label key={facility} className="text-sm flex gap-1 text-gray-700">
             <input

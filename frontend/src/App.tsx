@@ -16,6 +16,8 @@ import Detail from "./pages/Detail";
 import Booking from "./pages/Booking";
 import MyBookings from "./pages/MyBookings";
 import Home from "./pages/Home";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 const App = () => {
   const { isLoggedIn } = useAppContext();
@@ -59,6 +61,22 @@ const App = () => {
           element={
             <Layout>
               <Detail />
+            </Layout>
+          }
+        />
+        <Route
+          path="/privacy-policy"
+          element={
+            <Layout>
+              <PrivacyPolicy />
+            </Layout>
+          }
+        />
+        <Route
+          path="/terms-of-service"
+          element={
+            <Layout>
+              <TermsOfService />
             </Layout>
           }
         />
