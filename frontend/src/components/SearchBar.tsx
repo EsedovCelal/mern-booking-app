@@ -53,7 +53,7 @@ const SearchBar = () => {
             type="number"
             min={1}
             max={20}
-            value={adultCount}
+            value={adultCount || ""}
             onChange={(event) => setAdultCount(parseInt(event.target.value))}
           />
         </label>
@@ -64,7 +64,7 @@ const SearchBar = () => {
             type="number"
             min={0}
             max={20}
-            value={childCount}
+            value={childCount || ""}
             onChange={(event) => setChildCount(parseInt(event.target.value))}
           />
         </label>
@@ -92,7 +92,7 @@ const SearchBar = () => {
           endDate={checkOut}
           minDate={minDate}
           maxDate={maxDate}
-          placeholderText="Check-in Date"
+          placeholderText="Check-out Date"
           className="min-w-full bg-white p-2 focus:outline-none"
         />
       </div>
