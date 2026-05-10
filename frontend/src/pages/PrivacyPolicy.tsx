@@ -1,5 +1,5 @@
-import PolicySectionCart from "../components/PolicySectionCart";
-import { Policies } from "../config/privacyData";
+import LegalDocumentCard from "../components/LegalDocumentCard";
+import { policies } from "../config/privacy-data";
 
 const PrivacyPolicy = () => {
   return (
@@ -10,8 +10,8 @@ const PrivacyPolicy = () => {
       </div>
       <hr className="mb-8 border-gray-200" />
 
-      {Policies.map((section) => (
-        <PolicySectionCart
+      {policies.map((section) => (
+        <LegalDocumentCard
           key={section.id}
           id={section.id}
           title={section.title}

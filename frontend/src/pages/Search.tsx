@@ -8,6 +8,7 @@ import StarRatingFilter from "../components/StarRatingFilter";
 import HotelTypesFilter from "../components/HotelTypesFilter";
 import FacilitiesFilter from "../components/FacilitiesFilter";
 import PriceFilter from "../components/PriceFilter";
+import { BsFillFilterSquareFill } from "react-icons/bs";
 
 const Search = () => {
   const search = useSearchContext();
@@ -17,6 +18,7 @@ const Search = () => {
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>();
   const [sortOption, setSortOption] = useState<string>("");
+  const [filterIsOpen, setFilterIsOpen] = useState(false);
 
   const searchParams = {
     destination: search.destination,
@@ -72,9 +74,18 @@ const Search = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
-      <div className="rounded-lg border border-slate-300 p-5 h-fit sticky top-10">
-        <div className="space-y-5 ">
+    <div className="p-4 md:p-0 grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+      <div className="rounded-lg border border-slate-300 p-5 h-fit lg:sticky top-10">
+        <button
+          onClick={() => setFilterIsOpen(!filterIsOpen)}
+          className="lg:hidden w-full h-12 bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md flex items-center justify-center gap-2 text-white font-bold transition-colors"
+        >
+          <BsFillFilterSquareFill size={22} color="white" />
+          <span>Filter</span>
+        </button>
+        <div
+          className={`space-y-5 ${filterIsOpen === false && "hidden"} lg:block`}
+        >
           <h3 className="text-lg font-semibold border-b border-slate-300 pb-5">
             Filter by:
           </h3>

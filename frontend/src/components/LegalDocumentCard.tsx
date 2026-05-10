@@ -1,6 +1,6 @@
-import type { PolicySection } from "../config/privacyData";
+import type { PolicySection } from "../shared/types";
 
-const PolicySectionCard = ({ title, content }: PolicySection) => {
+const LegalDocumentCard = ({ title, content }: PolicySection) => {
   return (
     <section className="mb-6">
       <h2 className="text-lg font-semibold text-gray-800 mb-1">{title}</h2>
@@ -8,4 +8,4 @@ const PolicySectionCard = ({ title, content }: PolicySection) => {
     </section>
   );
 };
-export default PolicySectionCard;
+export default LegalDocumentCard;

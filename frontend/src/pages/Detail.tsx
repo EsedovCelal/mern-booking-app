@@ -27,7 +27,9 @@ const Detail = () => {
         </span>
         <h1 className="text-3xl font-bold">{hotel.name}</h1>
       </div>
-      <div className="grid grid-col-1 lg:grid-cols-3 gap-4">
+      <div
+        className={`grid grid-col-1 lg:grid-cols-3 ${hotel.imageUrls.length === 1 && "lg:grid-cols-1"} ${hotel.imageUrls.length === 2 && "lg:grid-cols-2"} gap-4`}
+      >
         {hotel.imageUrls.map((image, index) => (
           <div className="h-[300px]" key={index}>
             <img
@@ -38,15 +40,17 @@ const Detail = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {hotel.facilities.map((facility, index) => (
           <div className="border border-slate-300 rounded-sm p-3" key={index}>
             {facility}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr]">
-        <div className="whitespace-pre-line">{hotel.description}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div className="whitespace-pre-line pb-3 lg:pr-3">
+          {hotel.description}
+        </div>
         <div className="h-fit">
           <GuestInfoForm
             hotelId={hotel._id}
