@@ -65,3 +65,8 @@ export type PayPalCreateOrderResponse = {
   };
   links: PayPalLink[];
 };
+
+export type PayPalCaptureResponse = {
+  status: string;
+  id: string;
+};

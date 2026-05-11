@@ -10,7 +10,7 @@ import { v2 as cloudinary } from "cloudinary";
 import myHotelRoutes from "./routes/my-hotels";
 import hotelRoutes from "./routes/hotels";
 import bookingRoutes from "./routes/my-bookings";
-import paypalRoutes from "./routes/hotels";
+import paypalRoutes from "./routes/paypal";
 
 const PORT = process.env.PORT || 7000;
 

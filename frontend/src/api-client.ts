@@ -7,9 +7,9 @@ import type {
   UserType,
 } from "../../backend/src/shared/types";
 import type { BookingFormData } from "./forms/BookingForm/BookingForm";
-import { Navigate, useNavigate } from "react-router-dom";
+/* import { useNavigate } from "react-router-dom"; */
 
-const navigate = useNavigate();
+/* const navigate = useNavigate(); */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -211,20 +211,6 @@ export const createPaymentIntent = async (
   return response.json();
 };
 
-export const createdPaypalId = async () => {
-  const response = await fetch("/paypal/createorder", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json ",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Error fetching payment id");
-  }
-  const data = await response.json();
-  return data.order.id;
-};
-
 export const onApprovePaypal = async (data: { orderID: string }) => {
   try {
     if (!data?.orderID) throw new Error("Invalid order ID");
@@ -238,10 +224,10 @@ export const onApprovePaypal = async (data: { orderID: string }) => {
 
     const result = await response.json();
     console.log(result);
-    navigate("/cancel-payment");
+    /*     navigate("/cancel-payment"); */
   } catch (error) {
     console.error("Error verifying PayPal order:", error);
-    navigate("/cancel-payment");
+    /*     navigate("/cancel-payment"); */
   }
 };
 

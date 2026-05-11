@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import * as apiClient from "../../api-client";
 import { useAppContext } from "../../contexts/AppContext";
+import PayPalPayment from "../../components/PayPalPayment";
 
 type Props = {
   currentUser: UserType;
@@ -141,6 +142,7 @@ const BookingForm = ({ currentUser, paymentIntent }: Props) => {
           {isLoading ? "Saving..." : "Confirm Booking"}
         </button>
       </div>
+      <PayPalPayment />
     </form>
   );
 };
