@@ -45,8 +45,23 @@ export type HotelSearchResponse = {
   };
 };
 
-export type PaymentIntentResponse = {
+export type StripePaymentIntentResponse = {
   paymentIntentId: string;
   clientSecret: string;
   totalCost: number;
+};
+
+export type PayPalLink = {
+  href: string;
+  rel: "self" | "payer-action" | string;
+  method: "GET" | "POST" | "PATCH" | "DELETE";
+};
+
+export type PayPalCreateOrderResponse = {
+  id: string;
+  status: "PAYER_ACTION_REQUIRED" | "CREATED" | "APPROVED" | "COMPLETED";
+  payment_source: {
+    paypal: Record<string, unknown>;
+  };
+  links: PayPalLink[];
 };

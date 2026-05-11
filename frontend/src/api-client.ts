@@ -3,10 +3,13 @@ import type { SignInFormData } from "./pages/SignIn";
 import type {
   HotelSearchResponse,
   HotelType,
-  PaymentIntentResponse,
+  StripePaymentIntentResponse,
   UserType,
 } from "../../backend/src/shared/types";
 import type { BookingFormData } from "./forms/BookingForm/BookingForm";
+import { Navigate, useNavigate } from "react-router-dom";
+
+const navigate = useNavigate();
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -189,7 +192,7 @@ export const fetchHotelById = async (hotelId: string): Promise<HotelType> => {
 export const createPaymentIntent = async (
   hotelId: string,
   numberOfNights: string,
-): Promise<PaymentIntentResponse> => {
+): Promise<StripePaymentIntentResponse> => {
   const response = await fetch(
     `${API_BASE_URL}/api/hotels/${hotelId}/bookings/payment-intent`,
     {
@@ -206,6 +209,40 @@ export const createPaymentIntent = async (
   }
 
   return response.json();
+};
+
+export const createdPaypalId = async () => {
+  const response = await fetch("/paypal/createorder", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json ",
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Error fetching payment id");
+  }
+  const data = await response.json();
+  return data.order.id;
+};
+
+export const onApprovePaypal = async (data: { orderID: string }) => {
+  try {
+    if (!data?.orderID) throw new Error("Invalid order ID");
+
+    const response = await fetch(`/paypal/capturepayment/${data.orderID}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    console.log(result);
+    navigate("/cancel-payment");
+  } catch (error) {
+    console.error("Error verifying PayPal order:", error);
+    navigate("/cancel-payment");
+  }
 };
 
 export const createRoomBooking = async (formData: BookingFormData) => {

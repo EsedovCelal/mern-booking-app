@@ -18,6 +18,8 @@ import MyBookings from "./pages/MyBookings";
 import Home from "./pages/Home";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import CancelPayment from "./pages/CancelPayment";
+import CompletePayment from "./pages/CompletePayment";
 
 const App = () => {
   const { isLoggedIn } = useAppContext();
@@ -77,6 +79,22 @@ const App = () => {
           element={
             <Layout>
               <TermsOfService />
+            </Layout>
+          }
+        />
+        <Route
+          path="/cancel-payment"
+          element={
+            <Layout>
+              <CancelPayment />
+            </Layout>
+          }
+        />
+        <Route
+          path="/complete-payment"
+          element={
+            <Layout>
+              <CompletePayment />
             </Layout>
           }
         />

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import type {
-  PaymentIntentResponse,
+  StripePaymentIntentResponse,
   UserType,
 } from "../../../../backend/src/shared/types";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -13,7 +13,7 @@ import { useAppContext } from "../../contexts/AppContext";
 
 type Props = {
   currentUser: UserType;
-  paymentIntent: PaymentIntentResponse;
+  paymentIntent: StripePaymentIntentResponse;
 };
 
 export type BookingFormData = {
