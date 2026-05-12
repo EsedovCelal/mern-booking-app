@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import BookingDetailsSummary from "../components/BookingDetailsSummary";
 import { Elements } from "@stripe/react-stripe-js";
 import { useAppContext } from "../contexts/AppContext";
+import PayPalPayment from "../components/PayPalPayment";
 
 const Booking = () => {
   const { stripePromise } = useAppContext();
@@ -75,6 +76,7 @@ const Booking = () => {
           />
         </Elements>
       )}
+      <PayPalPayment numberOfNights={2} pricePerNight={60} />
     </div>
   );
 };

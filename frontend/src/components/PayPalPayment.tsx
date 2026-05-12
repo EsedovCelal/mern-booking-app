@@ -4,9 +4,13 @@ import {
   type PayPalButtonsComponentProps,
 } from "@paypal/react-paypal-js";
 import { useNavigate } from "react-router-dom";
-import type PayPalCaptureResponse from "../../../backend/src/shared/types";
 
-const PayPalPayment = () => {
+type Props = {
+  numberOfNights: number;
+  pricePerNight: number;
+};
+
+const PayPalPayment = ({ numberOfNights, pricePerNight }: Props) => {
   const navigate = useNavigate();
   const vitePaypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
@@ -19,6 +23,7 @@ const PayPalPayment = () => {
     try {
       const response = await fetch("/api/paypal/create-order", {
         method: "POST",
+        body: JSON.stringify({ numberOfNights, pricePerNight }),
         headers: {
           "Content-Type": "Application/json",
         },
@@ -31,12 +36,18 @@ const PayPalPayment = () => {
     }
   };
 
-  const onApprove = async (data) => {
+  const onApprove = async (data: {
+    orderID: string;
+    payerID?: string | null | undefined;
+    paymentID?: string | null | undefined;
+    billingToken?: string | null | undefined;
+    facilitatorAccessToken?: string;
+  }) => {
     try {
       if (!data.orderID) throw new Error("Invalid order ID");
 
       const response = await fetch(
-        `api/paypal/capture-payment/${data.orderID}`,
+        `/api/paypal/capture-payment/${data.orderID}`,
         {
           method: "GET",
           headers: {
@@ -46,6 +57,7 @@ const PayPalPayment = () => {
       );
 
       const result = await response.json();
+
       navigate("/complete-payment");
     } catch (error) {
       console.log("Error verifying Paypal order.", error);

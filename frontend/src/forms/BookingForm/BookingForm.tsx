@@ -142,7 +142,6 @@ const BookingForm = ({ currentUser, paymentIntent }: Props) => {
           {isLoading ? "Saving..." : "Confirm Booking"}
         </button>
       </div>
-      <PayPalPayment />
     </form>
   );
 };

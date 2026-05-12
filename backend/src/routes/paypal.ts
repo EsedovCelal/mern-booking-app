@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import got from "got";
+import verifyToken from "../middleware/auth";
 
 import type {
   PayPalCreateOrderResponse,
@@ -23,7 +24,9 @@ const getAccessTokenPaypal = async () => {
     });
 
     const data = JSON.parse(response.body);
+
     const newAccessToken = data.access_token;
+
     return newAccessToken;
   } catch (error) {
     throw new Error(error as string);
@@ -32,6 +35,11 @@ const getAccessTokenPaypal = async () => {
 
 const createOrder = async (req: Request, res: Response) => {
   try {
+    const { numberOfNights, pricePerNight } = req.body;
+
+    const totalAmount = (numberOfNights * pricePerNight).toFixed(2);
+    const unitAmount = Number(pricePerNight).toFixed(2);
+
     const accessToken = await getAccessTokenPaypal();
 
     const response = await got.post(`${paypalBaseUrl}/v2/checkout/orders`, {
@@ -48,20 +56,20 @@ const createOrder = async (req: Request, res: Response) => {
                 name: "Volatility Grid",
                 description:
                   "Interactive volatilities dashboard for cryptocurrencies.",
-                quantity: "1",
+                quantity: String(numberOfNights),
                 unit_amount: {
                   currency_code: "USD",
-                  value: "50.00",
+                  value: unitAmount,
                 },
               },
             ],
             amount: {
               currency_code: "USD",
-              value: "50.00",
+              value: totalAmount,
               breakdown: {
                 item_total: {
                   currency_code: "USD",
-                  value: "50.00",
+                  value: totalAmount,
                 },
               },
             },
@@ -122,7 +130,6 @@ const capturePayment = async (req: Request, res: Response) => {
         responseType: "json",
       },
     );
-    console.log(response);
 
     const paymentData = response.body as PayPalCaptureResponse;
 
@@ -152,7 +159,7 @@ const capturePayment = async (req: Request, res: Response) => {
   }
 };
 
-router.post("/create-order", createOrder);
-router.get("/capture-payment/:paymentId", capturePayment);
+router.post("/create-order", createOrder); //gives ID
+router.get("/capture-payment/:paymentId", capturePayment); //gives Object
 
 export default router;
