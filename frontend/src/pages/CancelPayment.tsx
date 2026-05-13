@@ -3,7 +3,7 @@ const CancelPayment = () => {
     <div>
       <h2>Payment Canceled</h2>
       <p>
-        Your payment was canceled. You can try again or choose the Frre plan
+        Your payment was canceled. You can try again or choose the Free plan
       </p>
     </div>
   );

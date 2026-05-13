@@ -67,7 +67,7 @@ const createOrder = async (req: Request, res: Response) => {
             ],
             amount: {
               currency_code: "USD",
-              value: totalCost,
+              value: totalCost.toFixed(2),
               breakdown: {
                 item_total: {
                   currency_code: "USD",
@@ -77,19 +77,13 @@ const createOrder = async (req: Request, res: Response) => {
             },
           },
         ],
-        payment_source: {
-          paypal: {
-            experience_context: {
-              payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-              payment_method_selected: "PAYPAL",
-              brand_name: "StayNest",
-              shipping_preference: "NO_SHIPPING",
-              locale: "en-US",
-              user_action: "PAY_NOW",
-              return_url: `${paypalRedirectBaseUrl}/complete-payment`,
-              cancel_url: `${paypalRedirectBaseUrl}/cancel-payment`,
-            },
-          },
+        application_context: {
+          return_url: `${paypalRedirectBaseUrl}/complete-payment`,
+          cancel_url: `${paypalRedirectBaseUrl}/cancel-payment`,
+          brand_name: "StayNest",
+          locale: "en-US",
+          user_action: "PAY_NOW",
+          shipping_preference: "NO_SHIPPING",
         },
       },
       responseType: "json",
