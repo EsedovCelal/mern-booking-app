@@ -127,29 +127,33 @@ router.post(
   verifyToken,
   async (req: Request, res: Response) => {
     try {
-      const paymentIntentId = req.body.paymentIntentId;
+      const { paymentMethod, paypalOrderId, paymentIntentStripeId } = req.body;
 
-      const paymentIntent = await stripe.paymentIntents.retrieve(
-        paymentIntentId as string,
-      );
+      if (paymentMethod === "stripe") {
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          paymentIntentStripeId as string,
+        );
 
-      if (!paymentIntent) {
-        return res.status(400).json({ message: "payment intent not found" });
+        if (!paymentIntent) {
+          return res.status(400).json({ message: "payment intent not found" });
+        }
+        if (
+          paymentIntent.metadata.hotelId !== req.params.hotelId ||
+          paymentIntent.metadata.userId !== req.userId
+        ) {
+          return res.status(400).json({ message: "payment intent mismatch" });
+        }
+        if (paymentIntent.status !== "succeeded") {
+          return res.status(400).json({
+            message: `payment intent not succeeded. Status: ${paymentIntent.status} `,
+          });
+        }
       }
-
-      if (
-        paymentIntent.metadata.hotelId !== req.params.hotelId ||
-        paymentIntent.metadata.userId !== req.userId
-      ) {
-        return res.status(400).json({ message: "payment intent mismatch" });
+      if (paymentMethod === "paypal") {
+        if (!paypalOrderId) {
+          return res.status(400).json({ message: "Missing Paypal order ID" });
+        }
       }
-
-      if (paymentIntent.status !== "succeeded") {
-        return res.status(400).json({
-          message: `payment intent not succeeded. Status: ${paymentIntent.status} `,
-        });
-      }
-
       const newBooking: BookingType = {
         ...req.body,
         userId: req.userId,
@@ -160,7 +164,7 @@ router.post(
         {
           $push: { bookings: newBooking },
         },
-        { new: true },
+        { returnDocument: "after" },
       );
 
       if (!hotel) {

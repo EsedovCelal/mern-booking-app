@@ -7,10 +7,15 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
   numberOfNights: number;
-  pricePerNight: number;
+  onApproveSuccess: (orderId: string) => void;
+  hotelId: string;
 };
 
-const PayPalPayment = ({ numberOfNights, pricePerNight }: Props) => {
+const PayPalPayment = ({
+  numberOfNights,
+  onApproveSuccess,
+  hotelId,
+}: Props) => {
   const navigate = useNavigate();
   const vitePaypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
@@ -21,9 +26,9 @@ const PayPalPayment = ({ numberOfNights, pricePerNight }: Props) => {
   };
   const onCreateOrder = async () => {
     try {
-      const response = await fetch("/api/paypal/create-order", {
+      const response = await fetch(`/api/paypal/create-order/${hotelId}`, {
         method: "POST",
-        body: JSON.stringify({ numberOfNights, pricePerNight }),
+        body: JSON.stringify({ numberOfNights }),
         headers: {
           "Content-Type": "Application/json",
         },
@@ -57,7 +62,9 @@ const PayPalPayment = ({ numberOfNights, pricePerNight }: Props) => {
       );
 
       const result = await response.json();
+      console.log(result);
 
+      onApproveSuccess(data.orderID);
       navigate("/complete-payment");
     } catch (error) {
       console.log("Error verifying Paypal order.", error);

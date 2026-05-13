@@ -34,6 +34,9 @@ export type BookingType = {
   checkIn: Date;
   checkOut: Date;
   totalCost: number;
+  paymentMethod: "stripe" | "paypal";
+  paymentIntentStripeId?: string;
+  paypalOrderId?: string;
 };
 
 export type HotelSearchResponse = {

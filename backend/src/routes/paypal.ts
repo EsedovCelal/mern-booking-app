@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import got from "got";
-import verifyToken from "../middleware/auth";
 
 import type {
   PayPalCreateOrderResponse,
@@ -12,6 +11,7 @@ const paypalClientId = process.env.PAYPAL_CLIENT_ID as string;
 const paypalSecret = process.env.PAYPAL_SECRET as string;
 const paypalRedirectBaseUrl = process.env.PAYPAL_REDIRECT_BASE_URL;
 const router = express.Router();
+import Hotel from "../models/hotel";
 
 const getAccessTokenPaypal = async () => {
   try {
@@ -24,9 +24,7 @@ const getAccessTokenPaypal = async () => {
     });
 
     const data = JSON.parse(response.body);
-
     const newAccessToken = data.access_token;
-
     return newAccessToken;
   } catch (error) {
     throw new Error(error as string);
@@ -35,14 +33,18 @@ const getAccessTokenPaypal = async () => {
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-    const { numberOfNights, pricePerNight } = req.body;
-
-    const totalAmount = (numberOfNights * pricePerNight).toFixed(2);
-    const unitAmount = Number(pricePerNight).toFixed(2);
-
     const accessToken = await getAccessTokenPaypal();
+    const hotelId = req.params.hotelId;
 
-    const response = await got.post(`${paypalBaseUrl}/v2/checkout/orders`, {
+    const hotel = await Hotel.findById(hotelId);
+    if (!hotel) {
+      return res.status(400).json({ message: "Hotel not found" });
+    }
+
+    const { numberOfNights } = req.body;
+    const totalCost = numberOfNights * hotel.pricePerNight;
+
+    const getId = await got.post(`${paypalBaseUrl}/v2/checkout/orders`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -56,20 +58,20 @@ const createOrder = async (req: Request, res: Response) => {
                 name: "Volatility Grid",
                 description:
                   "Interactive volatilities dashboard for cryptocurrencies.",
-                quantity: String(numberOfNights),
+                quantity: numberOfNights,
                 unit_amount: {
                   currency_code: "USD",
-                  value: unitAmount,
+                  value: hotel.pricePerNight.toFixed(2),
                 },
               },
             ],
             amount: {
               currency_code: "USD",
-              value: totalAmount,
+              value: totalCost.toFixed(2),
               breakdown: {
                 item_total: {
                   currency_code: "USD",
-                  value: totalAmount,
+                  value: totalCost.toFixed(2),
                 },
               },
             },
@@ -93,10 +95,13 @@ const createOrder = async (req: Request, res: Response) => {
       responseType: "json",
     });
 
-    const body = response.body as PayPalCreateOrderResponse;
-    const orderId = body.id;
+    const body = getId.body as PayPalCreateOrderResponse;
+    const response = {
+      orderId: body.id,
+      totalCost,
+    };
 
-    return res.status(200).json({ orderId });
+    res.send(response);
   } catch (error) {
     if (error instanceof got.HTTPError) {
       console.log(
@@ -159,7 +164,7 @@ const capturePayment = async (req: Request, res: Response) => {
   }
 };
 
-router.post("/create-order", createOrder); //gives ID
-router.get("/capture-payment/:paymentId", capturePayment); //gives Object
+router.post("/create-order/:hotelId", createOrder);
+router.get("/capture-payment/:paymentId", capturePayment);
 
 export default router;

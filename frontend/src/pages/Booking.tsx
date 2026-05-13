@@ -7,16 +7,25 @@ import { useEffect, useState } from "react";
 import BookingDetailsSummary from "../components/BookingDetailsSummary";
 import { Elements } from "@stripe/react-stripe-js";
 import { useAppContext } from "../contexts/AppContext";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import type { StripeCardElement } from "@stripe/stripe-js";
+import { useMutation } from "@tanstack/react-query";
+import type { BookingFormData } from "../forms/BookingForm/BookingForm";
+import type {
+  StripePaymentIntentResponse,
+  UserType,
+} from "../../../backend/src/shared/types";
 import PayPalPayment from "../components/PayPalPayment";
 
 const Booking = () => {
+  const [selectedPayment, setSelectedPayment] = useState<"stripe" | "paypal">(
+    "stripe",
+  );
   const { stripePromise } = useAppContext();
-
   const search = useSearchContext();
   const { hotelId } = useParams();
 
   const [numberOfNights, setNumberOfNights] = useState<number>(0);
-
   useEffect(() => {
     if (search.checkIn && search.checkOut) {
       const nights = Math.abs(
@@ -37,6 +46,16 @@ const Booking = () => {
     enabled: !!hotelId && numberOfNights > 0,
   });
 
+  const { data: PaypalPaymentIntent } = useQuery({
+    queryKey: ["createPayPalOrder"],
+    queryFn: () =>
+      apiClient.createPayPalOrder({
+        hotelId: hotelId as string,
+        numberOfNights,
+      }),
+    enabled: !!hotelId && numberOfNights > 0,
+  });
+
   const { data: hotel } = useQuery({
     queryKey: ["fetchHotelById"],
     queryFn: () => apiClient.fetchHotelById(hotelId as string),
@@ -51,9 +70,114 @@ const Booking = () => {
   if (!hotel) {
     return <></>;
   }
+  const StripeBookingForm = ({
+    currentUser,
+    paymentIntent,
+  }: {
+    currentUser: UserType;
+    paymentIntent: StripePaymentIntentResponse;
+  }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const { showToast } = useAppContext();
+
+    const { mutate: bookRoom, isPending: isLoading } = useMutation({
+      mutationFn: apiClient.createRoomBooking,
+      onSuccess: () => showToast({ message: "Booking saved", type: "SUCCESS" }),
+      onError: () =>
+        showToast({ message: "Error saving booking", type: "ERROR" }),
+    });
+
+    const handleStripeSubmit = async (formData: BookingFormData) => {
+      if (!stripe || !elements) return;
+
+      const result = await stripe.confirmCardPayment(
+        paymentIntent.clientSecret,
+        {
+          payment_method: {
+            card: elements.getElement(CardElement) as StripeCardElement,
+          },
+        },
+      );
+
+      if (result.paymentIntent?.status === "succeeded") {
+        bookRoom({
+          ...formData,
+          paymentMethod: "stripe",
+          paymentIntentStripeId: result.paymentIntent.id,
+        });
+      }
+    };
+
+    return (
+      <BookingForm
+        currentUser={currentUser}
+        paymentIntent={paymentIntent}
+        onSubmit={handleStripeSubmit}
+        isLoading={isLoading}
+      >
+        <CardElement
+          id="payment-element"
+          className="border rounded-md p-2 text-sm"
+        />
+      </BookingForm>
+    );
+  };
+  const PayPalBookingForm = ({
+    currentUser,
+    PaypalPaymentIntent,
+    numberOfNights,
+  }: {
+    currentUser: UserType;
+    PaypalPaymentIntent: {
+      orderId: string;
+      totalCost: number;
+    };
+    numberOfNights: number;
+  }) => {
+    const { showToast } = useAppContext();
+    const search = useSearchContext();
+    const { mutate: bookRoom, isPending: isLoading } = useMutation({
+      mutationFn: apiClient.createRoomBooking,
+      onSuccess: () => showToast({ message: "Booking saved", type: "SUCCESS" }),
+      onError: () =>
+        showToast({ message: "Error saving booking", type: "ERROR" }),
+    });
+
+    const handlePayPalApprove = (orderId: string) => {
+      bookRoom({
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        hotelId: hotelId as string,
+        totalCost: PaypalPaymentIntent.totalCost,
+        checkIn: search.checkIn.toISOString(),
+        checkOut: search.checkOut.toISOString(),
+        adultCount: search.adultCount.toString(),
+        childCount: search.childCount.toString(),
+        paymentMethod: "paypal",
+        paypalOrderId: orderId,
+      });
+    };
+
+    return (
+      <BookingForm
+        currentUser={currentUser}
+        paymentIntent={PaypalPaymentIntent}
+        onSubmit={async () => {}}
+        isLoading={isLoading}
+      >
+        <PayPalPayment
+          numberOfNights={numberOfNights}
+          onApproveSuccess={handlePayPalApprove}
+          hotelId={hotelId as string}
+        />
+      </BookingForm>
+    );
+  };
 
   return (
-    <div className="grid md:grid-cols-[1fr_2fr]">
+    <div className="grid md:grid-cols-[1fr_2fr] gap-4">
       <BookingDetailsSummary
         checkIn={search.checkIn}
         checkOut={search.checkOut}
@@ -62,22 +186,53 @@ const Booking = () => {
         numberOfNights={numberOfNights}
         hotel={hotel}
       />
-      {currentUser && paymentIntentData && (
-        <Elements
-          stripe={stripePromise}
-          options={{
-            clientSecret: paymentIntentData.clientSecret,
-          }}
-          key={paymentIntentData.clientSecret}
-        >
-          <BookingForm
+
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4">
+          <button
+            onClick={() => setSelectedPayment("stripe")}
+            className={`flex-1 p-3 border-2 rounded-lg font-semibold transition-colors ${
+              selectedPayment === "stripe"
+                ? "border-blue-600 bg-blue-50 text-blue-600"
+                : "border-gray-200 text-gray-500 hover:border-gray-300"
+            }`}
+          >
+            💳 Credit Card
+          </button>
+          <button
+            onClick={() => setSelectedPayment("paypal")}
+            className={`flex-1 p-3 border-2 rounded-lg font-semibold transition-colors ${
+              selectedPayment === "paypal"
+                ? "border-blue-600 bg-blue-50 text-blue-600"
+                : "border-gray-200 text-gray-500 hover:border-gray-300"
+            }`}
+          >
+            🅿️ PayPal
+          </button>
+        </div>
+        {selectedPayment === "stripe" && currentUser && paymentIntentData && (
+          <Elements
+            stripe={stripePromise}
+            options={{ clientSecret: paymentIntentData.clientSecret }}
+            key={paymentIntentData.clientSecret}
+          >
+            <StripeBookingForm
+              currentUser={currentUser}
+              paymentIntent={paymentIntentData}
+            />
+          </Elements>
+        )}
+
+        {selectedPayment === "paypal" && currentUser && PaypalPaymentIntent && (
+          <PayPalBookingForm
             currentUser={currentUser}
-            paymentIntent={paymentIntentData}
+            PaypalPaymentIntent={PaypalPaymentIntent}
+            numberOfNights={numberOfNights}
           />
-        </Elements>
-      )}
-      <PayPalPayment numberOfNights={2} pricePerNight={60} />
+        )}
+      </div>
     </div>
   );
 };
+
 export default Booking;

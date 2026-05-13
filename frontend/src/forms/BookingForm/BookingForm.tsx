@@ -1,20 +1,18 @@
 import { useForm } from "react-hook-form";
-import type {
-  StripePaymentIntentResponse,
-  UserType,
-} from "../../../../backend/src/shared/types";
-import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import type { StripeCardElement } from "@stripe/stripe-js";
+import type { UserType } from "../../../../backend/src/shared/types";
 import { useSearchContext } from "../../contexts/SearchContext";
 import { useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import * as apiClient from "../../api-client";
-import { useAppContext } from "../../contexts/AppContext";
-import PayPalPayment from "../../components/PayPalPayment";
 
 type Props = {
   currentUser: UserType;
-  paymentIntent: StripePaymentIntentResponse;
+  paymentIntent: {
+    totalCost: number;
+    paymentIntentId?: string;
+    orderId?: string;
+  };
+  onSubmit: (formData: BookingFormData) => Promise<void>;
+  children?: React.ReactNode;
+  isLoading?: boolean;
 };
 
 export type BookingFormData = {
@@ -26,28 +24,22 @@ export type BookingFormData = {
   checkIn: string;
   checkOut: string;
   hotelId: string;
-  paymentIntentId: string;
   totalCost: number;
+
+  paymentMethod: "stripe" | "paypal";
+  paymentIntentStripeId?: string;
+  paypalOrderId?: string;
 };
 
-const BookingForm = ({ currentUser, paymentIntent }: Props) => {
-  const stripe = useStripe();
-  const elements = useElements();
-
+const BookingForm = ({
+  currentUser,
+  paymentIntent,
+  onSubmit,
+  children,
+  isLoading,
+}: Props) => {
   const search = useSearchContext();
   const { hotelId } = useParams();
-
-  const { showToast } = useAppContext();
-
-  const { mutate: bookRoom, isPending: isLoading } = useMutation({
-    mutationFn: apiClient.createRoomBooking,
-    onSuccess: () => {
-      showToast({ message: "Booking saved", type: "SUCCESS" });
-    },
-    onError: () => {
-      showToast({ message: "Error saving booking", type: "ERROR" });
-    },
-  });
 
   const { register, handleSubmit } = useForm<BookingFormData>({
     defaultValues: {
@@ -60,24 +52,10 @@ const BookingForm = ({ currentUser, paymentIntent }: Props) => {
       checkOut: search.checkOut.toISOString(),
       hotelId,
       totalCost: paymentIntent.totalCost,
-      paymentIntentId: paymentIntent.paymentIntentId,
+      paymentIntentStripeId: paymentIntent.paymentIntentId,
+      paypalOrderId: paymentIntent.orderId,
     },
   });
-
-  const onSubmit = async (formData: BookingFormData) => {
-    if (!stripe || !elements) {
-      return;
-    }
-
-    const result = await stripe.confirmCardPayment(paymentIntent.clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement) as StripeCardElement,
-      },
-    });
-    if (result.paymentIntent?.status === "succeeded") {
-      bookRoom({ ...formData, paymentIntentId: result.paymentIntent.id });
-    }
-  };
 
   return (
     <form
@@ -85,7 +63,7 @@ const BookingForm = ({ currentUser, paymentIntent }: Props) => {
       className="grid grid-cols-1 gap-5 rounded-lg border border-slate-300 p-5"
     >
       <span className="text-3xl font-bold ">Confirm You Details</span>
-      <div className="grid grid-col-4 gap-6 ">
+      <div className="grid grid-cols-1 gap-6 ">
         <label className="text-grey-700 text-sm font-bold flex-1">
           First Name
           <input
@@ -128,16 +106,13 @@ const BookingForm = ({ currentUser, paymentIntent }: Props) => {
       </div>
       <div className="space-y-2">
         <h3 className="text-xl font-semibold">Payment Details </h3>
-        <CardElement
-          id="payment-element"
-          className="border rounded-md p-2 text-sm"
-        />
+        {children}
       </div>
       <div className="flex justify-end">
         <button
           disabled={isLoading}
           type="submit"
-          className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-md disabled::bg-grey-500"
+          className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-md disabled:bg-grey-500"
         >
           {isLoading ? "Saving..." : "Confirm Booking"}
         </button>

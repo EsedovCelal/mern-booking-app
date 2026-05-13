@@ -11,6 +11,9 @@ const bookingSchema = new mongoose.Schema<BookingType>({
   checkOut: { type: Date, required: true },
   userId: { type: String, required: true },
   totalCost: { type: Number, required: true },
+  paymentMethod: { type: String, enum: ["stripe", "paypal"] },
+  paymentIntentStripeId: { type: String },
+  paypalOrderId: { type: String },
 });
 
 const hotelSchema = new mongoose.Schema<HotelType>({

@@ -7,9 +7,6 @@ import type {
   UserType,
 } from "../../backend/src/shared/types";
 import type { BookingFormData } from "./forms/BookingForm/BookingForm";
-/* import { useNavigate } from "react-router-dom"; */
-
-/* const navigate = useNavigate(); */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -211,40 +208,63 @@ export const createPaymentIntent = async (
   return response.json();
 };
 
-export const onApprovePaypal = async (data: { orderID: string }) => {
+export const createPayPalOrder = async ({
+  hotelId,
+  numberOfNights,
+}: {
+  hotelId: string;
+  numberOfNights: number;
+}) => {
   try {
-    if (!data?.orderID) throw new Error("Invalid order ID");
-
-    const response = await fetch(`/paypal/capturepayment/${data.orderID}`, {
-      method: "GET",
+    const response = await fetch(`/api/paypal/create-order/${hotelId}`, {
+      method: "POST",
+      body: JSON.stringify({ numberOfNights }),
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "Application/json",
       },
     });
-
-    const result = await response.json();
-    console.log(result);
-    /*     navigate("/cancel-payment"); */
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error("Error verifying PayPal order:", error);
-    /*     navigate("/cancel-payment"); */
+    console.log("Error creating a Paypal order:", error);
+    throw error;
   }
 };
 
 export const createRoomBooking = async (formData: BookingFormData) => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/hotels/${formData.hotelId}/bookings`,
-    {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
+  if (formData.paymentMethod === "stripe") {
+    const response = await fetch(
+      `${API_BASE_URL}/api/hotels/${formData.hotelId}/bookings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
       },
-      credentials: "include",
-      body: JSON.stringify(formData),
-    },
-  );
-  if (!response.ok) {
-    throw new Error("Error b");
+    );
+
+    if (!response.ok) {
+      throw new Error("Stripe booking failed");
+    }
+  }
+  if (formData.paymentMethod === "paypal") {
+    const response = await fetch(
+      `${API_BASE_URL}/api/hotels/${formData.hotelId}/bookings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Paypal order failed");
+    }
   }
 };
 
