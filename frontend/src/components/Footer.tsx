@@ -8,9 +8,11 @@ const Footer = () => {
           <Link to="/">StayNest.com</Link>
         </span>
         <span className="md:hidden text-3xl text-white font-bold tracking-tight">
-          <Link to="/">SN</Link>
+          <Link to="/">
+            SN<span className="text-xl">.com</span>
+          </Link>
         </span>
-        <span className="text-white font-bold tracking-tight flex gap-4">
+        <span className="text-white font-bold tracking-tight md:flex grid grid-cols-1  gap-4">
           <Link to="/privacy-policy" className="cursor-pointer">
             Privacy Policy
           </Link>

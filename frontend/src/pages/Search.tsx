@@ -74,7 +74,7 @@ const Search = () => {
   };
 
   return (
-    <div className="p-4 md:p-0 grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+    <div className="p-4 md:p-0 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-5">
       <div className="rounded-lg border border-slate-300 p-5 h-fit lg:sticky top-10">
         <button
           onClick={() => setFilterIsOpen(!filterIsOpen)}
@@ -108,7 +108,7 @@ const Search = () => {
         </div>
       </div>
       <div className="flex flex-col fap-5">
-        <div className="flex justify-between items-center">
+        <div className="grid justify-between items-center grid-cols-1 lg:grid-cols-[1fr_auto] mb-5">
           <span className="text-xl font-bold">
             {hotelData?.pagination.total} Hotels found
             {search.destination ? ` in ${search.destination}` : ""}

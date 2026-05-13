@@ -115,6 +115,7 @@ const Booking = () => {
         paymentIntent={paymentIntent}
         onSubmit={handleStripeSubmit}
         isLoading={isLoading}
+        paymentMethod={selectedPayment}
       >
         <CardElement
           id="payment-element"
@@ -166,6 +167,7 @@ const Booking = () => {
         paymentIntent={PaypalPaymentIntent}
         onSubmit={async () => {}}
         isLoading={isLoading}
+        paymentMethod={selectedPayment}
       >
         <PayPalPayment
           numberOfNights={numberOfNights}

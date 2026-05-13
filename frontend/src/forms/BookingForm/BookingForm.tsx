@@ -13,6 +13,7 @@ type Props = {
   onSubmit: (formData: BookingFormData) => Promise<void>;
   children?: React.ReactNode;
   isLoading?: boolean;
+  paymentMethod: "stripe" | "paypal";
 };
 
 export type BookingFormData = {
@@ -37,6 +38,7 @@ const BookingForm = ({
   onSubmit,
   children,
   isLoading,
+  paymentMethod,
 }: Props) => {
   const search = useSearchContext();
   const { hotelId } = useParams();
@@ -108,15 +110,17 @@ const BookingForm = ({
         <h3 className="text-xl font-semibold">Payment Details </h3>
         {children}
       </div>
-      <div className="flex justify-end">
-        <button
-          disabled={isLoading}
-          type="submit"
-          className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-md disabled:bg-grey-500"
-        >
-          {isLoading ? "Saving..." : "Confirm Booking"}
-        </button>
-      </div>
+      {paymentMethod === "stripe" && (
+        <div className="flex justify-end">
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-md disabled:bg-grey-500"
+          >
+            {isLoading ? "Saving..." : "Confirm Booking"}
+          </button>
+        </div>
+      )}
     </form>
   );
 };

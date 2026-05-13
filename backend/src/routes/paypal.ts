@@ -61,17 +61,17 @@ const createOrder = async (req: Request, res: Response) => {
                 quantity: numberOfNights,
                 unit_amount: {
                   currency_code: "USD",
-                  value: hotel.pricePerNight.toFixed(2),
+                  value: hotel.pricePerNight,
                 },
               },
             ],
             amount: {
               currency_code: "USD",
-              value: totalCost.toFixed(2),
+              value: totalCost,
               breakdown: {
                 item_total: {
                   currency_code: "USD",
-                  value: totalCost.toFixed(2),
+                  value: totalCost,
                 },
               },
             },
