@@ -16,6 +16,7 @@ import type {
   UserType,
 } from "../../../backend/src/shared/types";
 import PayPalPayment from "../components/PayPalPayment";
+import { ThreeDot } from "react-loading-indicators";
 
 const Booking = () => {
   const [selectedPayment, setSelectedPayment] = useState<"stripe" | "paypal">(
@@ -177,7 +178,6 @@ const Booking = () => {
       </BookingForm>
     );
   };
-
   return (
     <div className="grid md:grid-cols-[1fr_2fr] gap-4">
       <BookingDetailsSummary
@@ -212,26 +212,35 @@ const Booking = () => {
             🅿️ PayPal
           </button>
         </div>
-        {selectedPayment === "stripe" && currentUser && paymentIntentData && (
-          <Elements
-            stripe={stripePromise}
-            options={{ clientSecret: paymentIntentData.clientSecret }}
-            key={paymentIntentData.clientSecret}
-          >
-            <StripeBookingForm
+        {selectedPayment === "stripe" &&
+          (currentUser && paymentIntentData ? (
+            <Elements
+              stripe={stripePromise}
+              options={{ clientSecret: paymentIntentData.clientSecret }}
+              key={paymentIntentData.clientSecret}
+            >
+              <StripeBookingForm
+                currentUser={currentUser}
+                paymentIntent={paymentIntentData}
+              />
+            </Elements>
+          ) : (
+            <div className="flex justify-center items-center h-full w-full">
+              <ThreeDot variant="bounce" color="#c8d5c8" size="medium" />
+            </div>
+          ))}
+        {selectedPayment === "paypal" &&
+          (currentUser && PaypalPaymentIntent ? (
+            <PayPalBookingForm
               currentUser={currentUser}
-              paymentIntent={paymentIntentData}
+              PaypalPaymentIntent={PaypalPaymentIntent}
+              numberOfNights={numberOfNights}
             />
-          </Elements>
-        )}
-
-        {selectedPayment === "paypal" && currentUser && PaypalPaymentIntent && (
-          <PayPalBookingForm
-            currentUser={currentUser}
-            PaypalPaymentIntent={PaypalPaymentIntent}
-            numberOfNights={numberOfNights}
-          />
-        )}
+          ) : (
+            <div className="flex justify-center items-center h-full w-full">
+              <ThreeDot variant="bounce" color="#4753e6" size="medium" />
+            </div>
+          ))}
       </div>
     </div>
   );
