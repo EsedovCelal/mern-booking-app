@@ -78,8 +78,8 @@ const createOrder = async (req: Request, res: Response) => {
           },
         ],
         application_context: {
-          return_url: `${paypalRedirectBaseUrl}/complete-payment`,
-          cancel_url: `${paypalRedirectBaseUrl}/cancel-payment`,
+          return_url: `${paypalRedirectBaseUrl}/complete-payment/${hotelId}`,
+          cancel_url: `${paypalRedirectBaseUrl}/cancel-payment/`,
           brand_name: "StayNest",
           locale: "en-US",
           user_action: "PAY_NOW",
@@ -93,6 +93,7 @@ const createOrder = async (req: Request, res: Response) => {
     const response = {
       orderId: body.id,
       totalCost,
+      hotel,
     };
 
     res.send(response);

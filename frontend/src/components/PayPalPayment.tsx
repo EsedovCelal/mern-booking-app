@@ -65,10 +65,10 @@ const PayPalPayment = ({
       console.log(result);
 
       onApproveSuccess(data.orderID);
-      navigate("/complete-payment");
+      navigate(`/complete-payment/${data.orderID}`);
     } catch (error) {
       console.log("Error verifying Paypal order.", error);
-      navigate("/cancel-payment");
+      navigate(`/cancel-payment`);
     }
   };
 

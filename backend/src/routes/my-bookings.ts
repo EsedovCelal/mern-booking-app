@@ -35,4 +35,22 @@ router.get("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+router.get("/:paymentId", verifyToken, async (req: Request, res: Response) => {
+  console.log("Fetching completed payment with ID:", req.params.paymentId);
+  const completedPayment = await Hotel.find({
+    bookings: {
+      $elemMatch: {
+        paypalOrderId: req.params.paymentId,
+      },
+    },
+  });
+
+  res.json(completedPayment[0]);
+  try {
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Unable to fetch booking" });
+  }
+});
+
 export default router;

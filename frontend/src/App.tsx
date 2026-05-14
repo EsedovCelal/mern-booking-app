@@ -91,7 +91,7 @@ const App = () => {
           }
         />
         <Route
-          path="/complete-payment"
+          path="/complete-payment/:paymentId"
           element={
             <Layout>
               <CompletePayment />

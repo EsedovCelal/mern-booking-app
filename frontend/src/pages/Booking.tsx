@@ -56,6 +56,7 @@ const Booking = () => {
       }),
     enabled: !!hotelId && numberOfNights > 0,
   });
+  console.log("PaypalPaymentIntent", PaypalPaymentIntent);
 
   const { data: hotel } = useQuery({
     queryKey: ["fetchHotelById"],

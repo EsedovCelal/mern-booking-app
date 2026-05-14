@@ -186,6 +186,18 @@ export const fetchHotelById = async (hotelId: string): Promise<HotelType> => {
   return response.json();
 };
 
+export const fetchCompletedPayment = async (
+  paymentId: string,
+): Promise<HotelType> => {
+  const response = await fetch(`${API_BASE_URL}/api/my-bookings/${paymentId}`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Error fetching completed payment");
+  }
+  return response.json();
+};
+
 export const createPaymentIntent = async (
   hotelId: string,
   numberOfNights: string,
